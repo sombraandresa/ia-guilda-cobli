@@ -41,9 +41,9 @@ export function useAdminState() {
   return { token, isAdmin, login, logout };
 }
 
-export function adminFetch(url: string, options: RequestInit = {}): Promise<Response> {
+export async function adminFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const token = localStorage.getItem("admin-token");
-  return fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers: {
       ...options.headers,
@@ -51,4 +51,9 @@ export function adminFetch(url: string, options: RequestInit = {}): Promise<Resp
       ...(options.body ? { "Content-Type": "application/json" } : {}),
     },
   });
+  if (response.status === 401 && token) {
+    localStorage.removeItem("admin-token");
+    window.location.href = "/admin/login";
+  }
+  return response;
 }
