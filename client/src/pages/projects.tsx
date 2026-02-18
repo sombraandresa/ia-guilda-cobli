@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { type Project, type Team, PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel } from "@shared/schema";
+import { type Project, PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel } from "@shared/schema";
+import { TeamSelect } from "@/components/team-select";
 import { ProjectCard } from "@/components/project-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -34,10 +35,6 @@ export default function Projects() {
   const projectsUrl = queryString ? `/api/projects?${queryString}` : "/api/projects";
   const { data: projects, isLoading } = useQuery<Project[]>({
     queryKey: [projectsUrl],
-  });
-
-  const { data: teamsList } = useQuery<Team[]>({
-    queryKey: ["/api/teams"],
   });
 
   const hasFilters = selectedTeam || selectedStatus || selectedType;
@@ -79,16 +76,14 @@ export default function Projects() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-          <Select value={selectedTeam} onValueChange={(v) => { setSelectedTeam(v); setPage(1); }}>
-            <SelectTrigger className="w-[140px]" data-testid="select-team-projects">
-              <SelectValue placeholder="Time" />
-            </SelectTrigger>
-            <SelectContent>
-              {(teamsList || []).map((team) => (
-                <SelectItem key={team.id} value={team.name}>{team.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <TeamSelect
+            value={selectedTeam}
+            onValueChange={(v) => { setSelectedTeam(v); setPage(1); }}
+            placeholder="Time"
+            allowClear
+            className="w-[140px]"
+            data-testid="select-team-projects"
+          />
 
           <Select value={selectedStatus} onValueChange={(v) => { setSelectedStatus(v); setPage(1); }}>
             <SelectTrigger className="w-[140px]" data-testid="select-status-projects">
