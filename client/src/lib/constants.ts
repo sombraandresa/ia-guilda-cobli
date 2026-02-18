@@ -14,10 +14,10 @@ export const URGENCY_COLORS: Record<string, string> = {
 };
 
 export const TYPE_ICONS: Record<string, string> = {
-  "Automacao": "Zap",
-  "Modelo ML": "Brain",
-  "Pipeline de Dados": "Database",
-  "Chatbot": "MessageSquare",
-  "Dashboard": "BarChart3",
-  "Integracao": "Plug",
+  automacao: "Zap",
+  modelo_ml: "Brain",
+  pipeline_dados: "Database",
+  chatbot: "MessageSquare",
+  dashboard: "BarChart3",
+  integracao: "Plug",
 };

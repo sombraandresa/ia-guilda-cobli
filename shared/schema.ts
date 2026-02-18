@@ -16,7 +16,7 @@ export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   status: text("status").notNull().default("em_andamento"),
-  type: text("type").notNull().default("Automacao"),
+  type: text("type").notNull().default("automacao"),
   tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
   team: text("team").notNull(),
   owner: text("owner").notNull(),
@@ -89,17 +89,8 @@ export const insertTeamSchema = createInsertSchema(teams).omit({ id: true });
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
 export type Team = typeof teams.$inferSelect;
 
-export const projectTypes = pgTable("project_types", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
-});
-
-export const insertProjectTypeSchema = createInsertSchema(projectTypes).omit({ id: true });
-export type InsertProjectType = z.infer<typeof insertProjectTypeSchema>;
-export type ProjectType = typeof projectTypes.$inferSelect;
-
 export const PROJECT_STATUSES = ["ideia", "em_desenvolvimento", "piloto", "beta_privado", "producao"] as const;
-export const DEFAULT_PROJECT_TYPES = ["Automacao", "Modelo ML", "Pipeline de Dados", "Chatbot", "Dashboard", "Integracao"] as const;
+export const PROJECT_TYPES = ["automacao", "modelo_ml", "pipeline_dados", "chatbot", "dashboard", "integracao"] as const;
 export const URGENCY_LEVELS = ["baixa", "media", "alta", "critica"] as const;
 export const DEFAULT_TEAMS = ["Tech", "Supply", "Marketing"] as const;
 export const HELP_STATUSES = ["aberto", "em_andamento", "concluido"] as const;
@@ -117,7 +108,15 @@ export function getStatusLabel(status: string): string {
 }
 
 export function getTypeLabel(type: string): string {
-  return type;
+  const map: Record<string, string> = {
+    automacao: "Automacao",
+    modelo_ml: "Modelo ML",
+    pipeline_dados: "Pipeline de Dados",
+    chatbot: "Chatbot",
+    dashboard: "Dashboard",
+    integracao: "Integracao",
+  };
+  return map[type] || type;
 }
 
 export function getUrgencyLabel(urgency: string): string {

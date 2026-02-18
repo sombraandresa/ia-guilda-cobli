@@ -3,8 +3,7 @@ import {
   type HelpRequest, type InsertHelpRequest,
   type Training, type InsertTraining,
   type Team, type InsertTeam,
-  type ProjectType,
-  projects, helpRequests, trainings, teams, projectTypes,
+  projects, helpRequests, trainings, teams,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc } from "drizzle-orm";
@@ -34,8 +33,6 @@ export interface IStorage {
   deleteTraining(id: string): Promise<boolean>;
   getTeams(): Promise<Team[]>;
   createTeam(name: string): Promise<Team>;
-  getProjectTypes(): Promise<ProjectType[]>;
-  createProjectType(name: string): Promise<ProjectType>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -252,17 +249,6 @@ export class DatabaseStorage implements IStorage {
     const existing = await db.select().from(teams).where(eq(teams.name, name));
     if (existing.length > 0) return existing[0];
     const [created] = await db.insert(teams).values({ name }).returning();
-    return created;
-  }
-
-  async getProjectTypes(): Promise<ProjectType[]> {
-    return db.select().from(projectTypes).orderBy(asc(projectTypes.name));
-  }
-
-  async createProjectType(name: string): Promise<ProjectType> {
-    const existing = await db.select().from(projectTypes).where(eq(projectTypes.name, name));
-    if (existing.length > 0) return existing[0];
-    const [created] = await db.insert(projectTypes).values({ name }).returning();
     return created;
   }
 }

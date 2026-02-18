@@ -23,8 +23,6 @@ Internal web app for Cobli's AI Guild - a repository of AI/automation projects a
 - `projects` table: id, title, status, type, tags[], team, owner, lastUpdated, summary, problem, solution, dataDependencies, risks, metrics, links (jsonb)
 - `help_requests` table: id, title, description, urgency, context, requester, team, projectId, createdAt, status, suggestedProjects[], suggestedPeople[]
 - `trainings` table: id, title, description, link, category, createdAt
-- `teams` table: id, name (unique) - dynamic, users can create new teams inline
-- `project_types` table: id, name (unique) - dynamic, users can create new types inline
 
 ## API Endpoints
 - `GET /api/projects?q=&tag=&team=&status=&type=` - List/search projects
@@ -33,10 +31,6 @@ Internal web app for Cobli's AI Guild - a repository of AI/automation projects a
 - `PATCH /api/projects/:id` - Update project (admin)
 - `DELETE /api/projects/:id` - Delete project (admin)
 - `GET /api/tags` - Get all unique tags
-- `GET /api/teams` - List teams
-- `POST /api/teams` - Create team (public)
-- `GET /api/project-types` - List project types
-- `POST /api/project-types` - Create project type (public)
 - `GET /api/help-requests` - List help requests
 - `POST /api/help-requests` - Create help request (returns suggestions)
 - `PATCH /api/help-requests/:id/status` - Update help request status (admin)
@@ -57,9 +51,7 @@ Internal web app for Cobli's AI Guild - a repository of AI/automation projects a
 - `client/src/lib/admin.ts` - Admin context, useAdmin hook, adminFetch helper
 - `client/src/components/project-form-dialog.tsx` - Project creation/editing form dialog
 - `client/src/components/app-sidebar.tsx` - Sidebar with navigation, submit project, and admin link
-- `client/src/components/team-select.tsx` - Combobox for teams with search and inline creation
-- `client/src/components/type-select.tsx` - Combobox for project types with search and inline creation
-- `client/src/lib/constants.ts` - Color maps for status, urgency, and type icons
+- `client/src/lib/constants.ts` - Color maps for status, urgency, and type
 
 ## How to Evolve
 - **Google Sheets integration**: Replace `DatabaseStorage` in `server/storage.ts` with a `GoogleSheetsStorage` class implementing `IStorage`

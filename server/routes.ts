@@ -65,30 +65,6 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/project-types", async (_req, res) => {
-    try {
-      const result = await storage.getProjectTypes();
-      res.json(result);
-    } catch (error) {
-      console.error("Error fetching project types:", error);
-      res.status(500).json({ message: "Failed to fetch project types" });
-    }
-  });
-
-  app.post("/api/project-types", async (req, res) => {
-    try {
-      const { name } = req.body;
-      if (!name || typeof name !== "string" || name.trim().length === 0) {
-        return res.status(400).json({ message: "Nome do tipo obrigatorio" });
-      }
-      const projectType = await storage.createProjectType(name.trim());
-      res.status(201).json(projectType);
-    } catch (error) {
-      console.error("Error creating project type:", error);
-      res.status(500).json({ message: "Failed to create project type" });
-    }
-  });
-
   app.get("/api/projects", async (req, res) => {
     try {
       const filters = {
