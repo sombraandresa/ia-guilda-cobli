@@ -1,15 +1,13 @@
 import { db } from "./db";
-import { projects, helpRequests, trainings, teams, DEFAULT_TEAMS } from "@shared/schema";
-import { ne } from "drizzle-orm";
+import { teams, DEFAULT_TEAMS } from "@shared/schema";
 
 export async function seedDatabase() {
-  console.log("Running database cleanup...");
-  await db.delete(projects);
-  await db.delete(helpRequests);
-  await db.delete(trainings).where(ne(trainings.title, "n8n - Automacao de Workflows"));
-  await db.delete(teams);
-  for (const name of DEFAULT_TEAMS) {
-    await db.insert(teams).values({ name }).onConflictDoNothing();
+  const existingTeams = await db.select({ id: teams.id }).from(teams).limit(1);
+  if (existingTeams.length === 0) {
+    console.log("Seeding default teams...");
+    for (const name of DEFAULT_TEAMS) {
+      await db.insert(teams).values({ name }).onConflictDoNothing();
+    }
+    console.log(`Seeded ${DEFAULT_TEAMS.length} teams.`);
   }
-  console.log("Database cleanup complete. Teams: Tech, Supply, Marketing.");
 }
