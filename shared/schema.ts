@@ -63,10 +63,29 @@ export const insertHelpRequestSchema = createInsertSchema(helpRequests).omit({
 export type InsertHelpRequest = z.infer<typeof insertHelpRequestSchema>;
 export type HelpRequest = typeof helpRequests.$inferSelect;
 
+export const trainings = pgTable("trainings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  link: text("link").notNull(),
+  category: text("category").notNull().default("geral"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertTrainingSchema = createInsertSchema(trainings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTraining = z.infer<typeof insertTrainingSchema>;
+export type Training = typeof trainings.$inferSelect;
+
 export const PROJECT_STATUSES = ["em_andamento", "concluido", "pausado", "planejado"] as const;
 export const PROJECT_TYPES = ["automacao", "modelo_ml", "pipeline_dados", "chatbot", "dashboard", "integracao"] as const;
 export const URGENCY_LEVELS = ["baixa", "media", "alta", "critica"] as const;
 export const TEAMS = ["Data Science", "Engenharia", "Produto", "Operacoes", "CS", "Growth", "Financeiro"] as const;
+export const HELP_STATUSES = ["aberto", "em_andamento", "concluido"] as const;
+export const TRAINING_CATEGORIES = ["ferramenta", "conceito", "framework", "plataforma", "geral"] as const;
 
 export function getStatusLabel(status: string): string {
   const map: Record<string, string> = {
@@ -98,4 +117,24 @@ export function getUrgencyLabel(urgency: string): string {
     critica: "Critica",
   };
   return map[urgency] || urgency;
+}
+
+export function getHelpStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    aberto: "Aberto",
+    em_andamento: "Em Andamento",
+    concluido: "Concluido",
+  };
+  return map[status] || status;
+}
+
+export function getCategoryLabel(category: string): string {
+  const map: Record<string, string> = {
+    ferramenta: "Ferramenta",
+    conceito: "Conceito",
+    framework: "Framework",
+    plataforma: "Plataforma",
+    geral: "Geral",
+  };
+  return map[category] || category;
 }

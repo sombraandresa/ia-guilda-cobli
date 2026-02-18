@@ -1,6 +1,5 @@
 import { db } from "./db";
-import { projects } from "@shared/schema";
-import { sql } from "drizzle-orm";
+import { projects, trainings } from "@shared/schema";
 
 const seedProjects = [
   {
@@ -44,7 +43,7 @@ const seedProjects = [
     problem: "Novos colaboradores levam 3 semanas para se familiarizar com processos internos. RH gasta 8h/semana respondendo perguntas repetitivas.",
     solution: "Chatbot com GPT-4 + RAG indexando wiki interna, handbook e FAQs. Interface no Slack para acesso facil.",
     dataDependencies: "Wiki Notion, handbook PDF, base de FAQs do RH, historico de perguntas Slack.",
-    risks: "Alucinacoes do modelo em topicos sensíveis (beneficios, salario). Necessidade de moderacao humana.",
+    risks: "Alucinacoes do modelo em topicos sensiveis (beneficios, salario). Necessidade de moderacao humana.",
     metrics: "Perguntas respondidas automaticamente: 78%, Satisfacao do usuario: 4.2/5, Reducao de carga RH: 60%.",
     links: { doc: "https://docs.google.com/doc/chatbot-onboarding", repo: "https://github.com/cobli/chatbot-onboarding", n8n: "https://n8n.cobli.co/workflow/25" },
   },
@@ -110,16 +109,73 @@ const seedProjects = [
   },
 ];
 
+const seedTrainings = [
+  {
+    title: "n8n - Automacao de Workflows",
+    description: "Aprenda a criar workflows de automacao sem codigo usando n8n. Cobre desde triggers basicos ate integracao com APIs externas e logica condicional.",
+    link: "https://docs.n8n.io/courses/",
+    category: "ferramenta",
+  },
+  {
+    title: "Google AI Studio - Prototipagem com Gemini",
+    description: "Tutorial oficial do Google AI Studio para testar e prototipar prompts com modelos Gemini. Ideal para quem quer explorar capacidades de LLM rapidamente.",
+    link: "https://aistudio.google.com/",
+    category: "plataforma",
+  },
+  {
+    title: "Prompt Engineering Guide",
+    description: "Guia completo de tecnicas de prompt engineering: few-shot, chain-of-thought, ReAct, e boas praticas para obter melhores resultados com LLMs.",
+    link: "https://www.promptingguide.ai/",
+    category: "conceito",
+  },
+  {
+    title: "LangChain - Framework para Apps com LLM",
+    description: "Introducao ao LangChain para construir aplicacoes com LLMs, incluindo RAG, agentes, chains e integracao com bases de dados vetoriais.",
+    link: "https://python.langchain.com/docs/get_started/introduction",
+    category: "framework",
+  },
+  {
+    title: "Hugging Face - Modelos e Datasets",
+    description: "Plataforma para descobrir, treinar e deployar modelos de ML. Inclui milhares de modelos pre-treinados e datasets para NLP, visao computacional e mais.",
+    link: "https://huggingface.co/learn",
+    category: "plataforma",
+  },
+  {
+    title: "dbt - Transformacao de Dados",
+    description: "Aprenda dbt para transformar dados no seu data warehouse. Cobre modelos, testes, documentacao e boas praticas de analytics engineering.",
+    link: "https://courses.getdbt.com/",
+    category: "ferramenta",
+  },
+  {
+    title: "RAG - Retrieval Augmented Generation",
+    description: "Conceitos e implementacao de RAG para combinar busca em documentos com geracao de texto via LLMs, reduzindo alucinacoes e melhorando acuracia.",
+    link: "https://www.pinecone.io/learn/retrieval-augmented-generation/",
+    category: "conceito",
+  },
+  {
+    title: "MLflow - Gestao de Experimentos ML",
+    description: "Ferramenta open-source para tracking de experimentos, empacotamento de modelos e deploy. Essencial para reproducibilidade em projetos de ML.",
+    link: "https://mlflow.org/docs/latest/tutorials-and-examples/index.html",
+    category: "ferramenta",
+  },
+];
+
 export async function seedDatabase() {
-  const existing = await db.select({ id: projects.id }).from(projects).limit(1);
-  if (existing.length > 0) {
-    console.log("Database already seeded, skipping.");
-    return;
+  const existingProjects = await db.select({ id: projects.id }).from(projects).limit(1);
+  if (existingProjects.length === 0) {
+    console.log("Seeding database with sample projects...");
+    for (const project of seedProjects) {
+      await db.insert(projects).values(project);
+    }
+    console.log(`Seeded ${seedProjects.length} projects.`);
   }
 
-  console.log("Seeding database with sample projects...");
-  for (const project of seedProjects) {
-    await db.insert(projects).values(project);
+  const existingTrainings = await db.select({ id: trainings.id }).from(trainings).limit(1);
+  if (existingTrainings.length === 0) {
+    console.log("Seeding database with sample trainings...");
+    for (const training of seedTrainings) {
+      await db.insert(trainings).values(training);
+    }
+    console.log(`Seeded ${seedTrainings.length} trainings.`);
   }
-  console.log(`Seeded ${seedProjects.length} projects.`);
 }
