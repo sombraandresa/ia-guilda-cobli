@@ -1,4 +1,5 @@
-import { Home, FolderKanban, HelpCircle, Brain } from "lucide-react";
+import { Home, FolderKanban, HelpCircle, Brain, GraduationCap, Shield, Plus } from "lucide-react";
+import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import {
   Sidebar,
@@ -12,15 +13,19 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { ProjectFormDialog } from "@/components/project-form-dialog";
 
 const navItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Projetos", url: "/projetos", icon: FolderKanban },
+  { title: "Treinamentos", url: "/treinamentos", icon: GraduationCap },
   { title: "Pedir Ajuda", url: "/ajuda", icon: HelpCircle },
 ];
 
 export function AppSidebar() {
   const [location] = useLocation();
+  const [projectFormOpen, setProjectFormOpen] = useState(false);
 
   return (
     <Sidebar>
@@ -54,7 +59,7 @@ export function AppSidebar() {
                       data-active={isActive}
                       className={isActive ? "bg-sidebar-accent" : ""}
                     >
-                      <Link href={item.url} data-testid={`link-nav-${item.title.toLowerCase()}`}>
+                      <Link href={item.url} data-testid={`link-nav-${item.title.toLowerCase().replace(/\s+/g, "-")}`}>
                         <item.icon className="w-4 h-4" />
                         <span>{item.title}</span>
                       </Link>
@@ -65,10 +70,49 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Acoes</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => setProjectFormOpen(true)} data-testid="button-submit-project">
+                  <Plus className="w-4 h-4" />
+                  <span>Submeter Projeto</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  data-active={location.startsWith("/admin")}
+                  className={location.startsWith("/admin") ? "bg-sidebar-accent" : ""}
+                >
+                  <Link href="/admin/login" data-testid="link-nav-admin">
+                    <Shield className="w-4 h-4" />
+                    <span>Painel Admin</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-4">
         <p className="text-xs text-muted-foreground">AI Guilda v1.0</p>
       </SidebarFooter>
+
+      <ProjectFormDialog
+        open={projectFormOpen}
+        onOpenChange={setProjectFormOpen}
+      />
     </Sidebar>
   );
 }

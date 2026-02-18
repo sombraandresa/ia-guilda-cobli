@@ -1,11 +1,11 @@
 import {
   type Project, type InsertProject,
   type HelpRequest, type InsertHelpRequest,
-  projects, helpRequests,
+  type Training, type InsertTraining,
+  projects, helpRequests, trainings,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, ilike, and, sql, desc } from "drizzle-orm";
-import { randomUUID } from "crypto";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   getProjects(filters?: {
@@ -17,12 +17,19 @@ export interface IStorage {
   }): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
   createProject(project: InsertProject): Promise<Project>;
+  updateProject(id: string, project: Partial<InsertProject>): Promise<Project | undefined>;
+  deleteProject(id: string): Promise<boolean>;
   getAllTags(): Promise<string[]>;
   getHelpRequests(): Promise<HelpRequest[]>;
   getHelpRequest(id: string): Promise<HelpRequest | undefined>;
   createHelpRequest(request: InsertHelpRequest): Promise<HelpRequest>;
+  updateHelpRequestStatus(id: string, status: string): Promise<HelpRequest | undefined>;
   searchSimilarProjects(query: string, limit?: number): Promise<Project[]>;
   suggestPeople(query: string, team?: string): Promise<string[]>;
+  getTrainings(): Promise<Training[]>;
+  createTraining(training: InsertTraining): Promise<Training>;
+  updateTraining(id: string, training: Partial<InsertTraining>): Promise<Training | undefined>;
+  deleteTraining(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -38,27 +45,27 @@ export class DatabaseStorage implements IStorage {
     if (filters) {
       if (filters.q) {
         const q = filters.q.toLowerCase();
-        allProjects = allProjects.filter((p) =>
+        allProjects = allProjects.filter((p: Project) =>
           p.title.toLowerCase().includes(q) ||
           p.summary.toLowerCase().includes(q) ||
           p.problem.toLowerCase().includes(q) ||
           p.solution.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.toLowerCase().includes(q))
+          p.tags.some((t: string) => t.toLowerCase().includes(q))
         );
       }
       if (filters.tag) {
-        allProjects = allProjects.filter((p) =>
-          p.tags.some((t) => t.toLowerCase() === filters.tag!.toLowerCase())
+        allProjects = allProjects.filter((p: Project) =>
+          p.tags.some((t: string) => t.toLowerCase() === filters.tag!.toLowerCase())
         );
       }
       if (filters.team) {
-        allProjects = allProjects.filter((p) => p.team === filters.team);
+        allProjects = allProjects.filter((p: Project) => p.team === filters.team);
       }
       if (filters.status) {
-        allProjects = allProjects.filter((p) => p.status === filters.status);
+        allProjects = allProjects.filter((p: Project) => p.status === filters.status);
       }
       if (filters.type) {
-        allProjects = allProjects.filter((p) => p.type === filters.type);
+        allProjects = allProjects.filter((p: Project) => p.type === filters.type);
       }
     }
 
@@ -75,10 +82,24 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  async updateProject(id: string, data: Partial<InsertProject>): Promise<Project | undefined> {
+    const [updated] = await db
+      .update(projects)
+      .set({ ...data, lastUpdated: new Date() })
+      .where(eq(projects.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteProject(id: string): Promise<boolean> {
+    const result = await db.delete(projects).where(eq(projects.id, id)).returning();
+    return result.length > 0;
+  }
+
   async getAllTags(): Promise<string[]> {
     const allProjects = await db.select({ tags: projects.tags }).from(projects);
     const tagSet = new Set<string>();
-    allProjects.forEach((p) => p.tags.forEach((t) => tagSet.add(t)));
+    allProjects.forEach((p: { tags: string[] }) => p.tags.forEach((t: string) => tagSet.add(t)));
     return Array.from(tagSet).sort();
   }
 
@@ -105,7 +126,7 @@ export class DatabaseStorage implements IStorage {
       .insert(helpRequests)
       .values({
         ...request,
-        suggestedProjects: similarProjects.map((p) => p.id),
+        suggestedProjects: similarProjects.map((p: Project) => p.id),
         suggestedPeople: suggestedPeople,
       })
       .returning();
@@ -113,12 +134,21 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  async updateHelpRequestStatus(id: string, status: string): Promise<HelpRequest | undefined> {
+    const [updated] = await db
+      .update(helpRequests)
+      .set({ status })
+      .where(eq(helpRequests.id, id))
+      .returning();
+    return updated;
+  }
+
   async searchSimilarProjects(query: string, limit = 3): Promise<Project[]> {
     const allProjects = await db.select().from(projects);
     const q = query.toLowerCase();
-    const words = q.split(/\s+/).filter((w) => w.length > 2);
+    const words = q.split(/\s+/).filter((w: string) => w.length > 2);
 
-    const scored = allProjects.map((project) => {
+    const scored = allProjects.map((project: Project) => {
       let score = 0;
       const searchableText = [
         project.title,
@@ -135,23 +165,23 @@ export class DatabaseStorage implements IStorage {
           score += 1;
           if (project.problem.toLowerCase().includes(word)) score += 2;
           if (project.title.toLowerCase().includes(word)) score += 1.5;
-          if (project.tags.some((t) => t.toLowerCase().includes(word))) score += 1;
+          if (project.tags.some((t: string) => t.toLowerCase().includes(word))) score += 1;
         }
       }
       return { project, score };
     });
 
     return scored
-      .filter((s) => s.score > 0)
-      .sort((a, b) => b.score - a.score)
+      .filter((s: { score: number }) => s.score > 0)
+      .sort((a: { score: number }, b: { score: number }) => b.score - a.score)
       .slice(0, limit)
-      .map((s) => s.project);
+      .map((s: { project: Project }) => s.project);
   }
 
   async suggestPeople(query: string, team?: string): Promise<string[]> {
     const allProjects = await db.select().from(projects);
     const q = query.toLowerCase();
-    const words = q.split(/\s+/).filter((w) => w.length > 2);
+    const words = q.split(/\s+/).filter((w: string) => w.length > 2);
 
     const ownerScores = new Map<string, number>();
 
@@ -180,9 +210,32 @@ export class DatabaseStorage implements IStorage {
     }
 
     return Array.from(ownerScores.entries())
-      .sort((a, b) => b[1] - a[1])
+      .sort((a: [string, number], b: [string, number]) => b[1] - a[1])
       .slice(0, 3)
-      .map(([owner]) => owner);
+      .map(([owner]: [string, number]) => owner);
+  }
+
+  async getTrainings(): Promise<Training[]> {
+    return db.select().from(trainings).orderBy(desc(trainings.createdAt));
+  }
+
+  async createTraining(training: InsertTraining): Promise<Training> {
+    const [created] = await db.insert(trainings).values(training).returning();
+    return created;
+  }
+
+  async updateTraining(id: string, data: Partial<InsertTraining>): Promise<Training | undefined> {
+    const [updated] = await db
+      .update(trainings)
+      .set(data)
+      .where(eq(trainings.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteTraining(id: string): Promise<boolean> {
+    const result = await db.delete(trainings).where(eq(trainings.id, id)).returning();
+    return result.length > 0;
   }
 }
 
