@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, X, Brain, FolderKanban, HelpCircle, Sparkles } from "lucide-react";
-import { type Project, type Team, PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel } from "@shared/schema";
+import { type Project, PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel } from "@shared/schema";
+import { TeamSelect } from "@/components/team-select";
 import { ProjectCard } from "@/components/project-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
@@ -39,10 +40,6 @@ export default function Home() {
 
   const { data: allTags } = useQuery<string[]>({
     queryKey: ["/api/tags"],
-  });
-
-  const { data: teamsList } = useQuery<Team[]>({
-    queryKey: ["/api/teams"],
   });
 
   const hasFilters = selectedTag || selectedTeam || selectedStatus || selectedType;
@@ -94,16 +91,14 @@ export default function Home() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-            <SelectTrigger className="w-[140px]" data-testid="select-team">
-              <SelectValue placeholder="Time" />
-            </SelectTrigger>
-            <SelectContent>
-              {(teamsList || []).map((team) => (
-                <SelectItem key={team.id} value={team.name}>{team.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <TeamSelect
+            value={selectedTeam}
+            onValueChange={setSelectedTeam}
+            placeholder="Time"
+            allowClear
+            className="w-[140px]"
+            data-testid="select-team"
+          />
 
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="w-[140px]" data-testid="select-status">

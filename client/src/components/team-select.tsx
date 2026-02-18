@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown, Plus, X } from "lucide-react";
 import { type Team } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
@@ -16,10 +16,12 @@ interface TeamSelectProps {
   value: string;
   onValueChange: (value: string) => void;
   placeholder?: string;
+  allowClear?: boolean;
+  className?: string;
   "data-testid"?: string;
 }
 
-export function TeamSelect({ value, onValueChange, placeholder = "Selecione o time", ...props }: TeamSelectProps) {
+export function TeamSelect({ value, onValueChange, placeholder = "Selecione o time", allowClear = false, className, ...props }: TeamSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -61,13 +63,24 @@ export function TeamSelect({ value, onValueChange, placeholder = "Selecione o ti
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between font-normal"
+          className={cn("justify-between font-normal", className || "w-full")}
           data-testid={props["data-testid"]}
         >
           <span className={cn("truncate", !value && "text-muted-foreground")}>
             {value || placeholder}
           </span>
-          <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+          {allowClear && value ? (
+            <X
+              className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50 hover:opacity-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                onValueChange("");
+              }}
+              data-testid="button-clear-team"
+            />
+          ) : (
+            <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
