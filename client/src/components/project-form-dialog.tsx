@@ -28,10 +28,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Save } from "lucide-react";
-import { PROJECT_STATUSES, PROJECT_TYPES, TEAMS, getStatusLabel, getTypeLabel, insertProjectSchema, type Project } from "@shared/schema";
+import { PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel, insertProjectSchema, type Project } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { adminFetch } from "@/lib/admin";
 import { useToast } from "@/hooks/use-toast";
+import { TeamSelect } from "@/components/team-select";
 
 const formSchema = insertProjectSchema.extend({
   title: z.string().min(3, "Titulo obrigatorio"),
@@ -193,12 +194,13 @@ export function ProjectFormDialog({ open, onOpenChange, editProject, isAdmin }: 
               <FormField control={form.control} name="team" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Time</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl><SelectTrigger data-testid="select-project-team"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {TEAMS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <TeamSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      data-testid="select-project-team"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />

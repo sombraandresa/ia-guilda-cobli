@@ -2,10 +2,11 @@ import {
   type Project, type InsertProject,
   type HelpRequest, type InsertHelpRequest,
   type Training, type InsertTraining,
-  projects, helpRequests, trainings,
+  type Team, type InsertTeam,
+  projects, helpRequests, trainings, teams,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
   getProjects(filters?: {
@@ -30,6 +31,8 @@ export interface IStorage {
   createTraining(training: InsertTraining): Promise<Training>;
   updateTraining(id: string, training: Partial<InsertTraining>): Promise<Training | undefined>;
   deleteTraining(id: string): Promise<boolean>;
+  getTeams(): Promise<Team[]>;
+  createTeam(name: string): Promise<Team>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -236,6 +239,17 @@ export class DatabaseStorage implements IStorage {
   async deleteTraining(id: string): Promise<boolean> {
     const result = await db.delete(trainings).where(eq(trainings.id, id)).returning();
     return result.length > 0;
+  }
+
+  async getTeams(): Promise<Team[]> {
+    return db.select().from(teams).orderBy(asc(teams.name));
+  }
+
+  async createTeam(name: string): Promise<Team> {
+    const existing = await db.select().from(teams).where(eq(teams.name, name));
+    if (existing.length > 0) return existing[0];
+    const [created] = await db.insert(teams).values({ name }).returning();
+    return created;
   }
 }
 

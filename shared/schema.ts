@@ -80,10 +80,19 @@ export const insertTrainingSchema = createInsertSchema(trainings).omit({
 export type InsertTraining = z.infer<typeof insertTrainingSchema>;
 export type Training = typeof trainings.$inferSelect;
 
+export const teams = pgTable("teams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+});
+
+export const insertTeamSchema = createInsertSchema(teams).omit({ id: true });
+export type InsertTeam = z.infer<typeof insertTeamSchema>;
+export type Team = typeof teams.$inferSelect;
+
 export const PROJECT_STATUSES = ["em_andamento", "concluido", "pausado", "planejado"] as const;
 export const PROJECT_TYPES = ["automacao", "modelo_ml", "pipeline_dados", "chatbot", "dashboard", "integracao"] as const;
 export const URGENCY_LEVELS = ["baixa", "media", "alta", "critica"] as const;
-export const TEAMS = ["Data Science", "Engenharia", "Produto", "Operacoes", "CS", "Growth", "Financeiro"] as const;
+export const DEFAULT_TEAMS = ["Data Science", "Engenharia", "Produto", "Operacoes", "CS", "Growth", "Financeiro"] as const;
 export const HELP_STATUSES = ["aberto", "em_andamento", "concluido"] as const;
 export const TRAINING_CATEGORIES = ["ferramenta", "conceito", "framework", "plataforma", "geral"] as const;
 

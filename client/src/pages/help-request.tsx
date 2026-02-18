@@ -25,12 +25,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { HelpCircle, Send, Sparkles, FolderKanban, User, CheckCircle2 } from "lucide-react";
-import { URGENCY_LEVELS, TEAMS, getUrgencyLabel, type Project, insertHelpRequestSchema } from "@shared/schema";
+import { URGENCY_LEVELS, getUrgencyLabel, type Project, insertHelpRequestSchema } from "@shared/schema";
 import { URGENCY_COLORS, STATUS_COLORS } from "@/lib/constants";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { getStatusLabel } from "@shared/schema";
+import { TeamSelect } from "@/components/team-select";
 
 const formSchema = insertHelpRequestSchema.extend({
   title: z.string().min(5, "Titulo deve ter pelo menos 5 caracteres"),
@@ -267,18 +268,13 @@ export default function HelpRequest() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Seu time</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-help-team">
-                              <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {TEAMS.map((team) => (
-                              <SelectItem key={team} value={team}>{team}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <TeamSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            data-testid="select-help-team"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
