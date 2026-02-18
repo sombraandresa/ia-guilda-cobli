@@ -89,6 +89,15 @@ export const insertTeamSchema = createInsertSchema(teams).omit({ id: true });
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
 export type Team = typeof teams.$inferSelect;
 
+export const projectTypes = pgTable("project_types", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+});
+
+export const insertProjectTypeSchema = createInsertSchema(projectTypes).omit({ id: true });
+export type InsertProjectType = z.infer<typeof insertProjectTypeSchema>;
+export type ProjectType = typeof projectTypes.$inferSelect;
+
 export const PROJECT_STATUSES = ["ideia", "em_desenvolvimento", "piloto", "beta_privado", "producao"] as const;
 export const PROJECT_TYPES = ["automacao", "modelo_ml", "pipeline_dados", "chatbot", "dashboard", "integracao"] as const;
 export const URGENCY_LEVELS = ["baixa", "media", "alta", "critica"] as const;
