@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -80,6 +81,30 @@ export function ProjectFormDialog({ open, onOpenChange, editProject, isAdmin }: 
       linkDashboard: links?.dashboard || "",
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      const projectLinks = editProject?.links as { doc?: string; repo?: string; n8n?: string; dashboard?: string } | null;
+      form.reset({
+        title: editProject?.title || "",
+        status: editProject?.status || "planejado",
+        type: editProject?.type || "automacao",
+        team: editProject?.team || "",
+        owner: editProject?.owner || "",
+        summary: editProject?.summary || "",
+        problem: editProject?.problem || "",
+        solution: editProject?.solution || "",
+        dataDependencies: editProject?.dataDependencies || "",
+        risks: editProject?.risks || "",
+        metrics: editProject?.metrics || "",
+        tagsInput: editProject?.tags?.join(", ") || "",
+        linkDoc: projectLinks?.doc || "",
+        linkRepo: projectLinks?.repo || "",
+        linkN8n: projectLinks?.n8n || "",
+        linkDashboard: projectLinks?.dashboard || "",
+      });
+    }
+  }, [open, editProject]);
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
