@@ -28,14 +28,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Save } from "lucide-react";
-import { PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel, insertProjectSchema, type Project } from "@shared/schema";
+import { PROJECT_STATUSES, getStatusLabel, insertProjectSchema, type Project } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { adminFetch } from "@/lib/admin";
 import { useToast } from "@/hooks/use-toast";
 import { TeamSelect } from "@/components/team-select";
+import { TypeSelect } from "@/components/type-select";
 
 const formSchema = insertProjectSchema.extend({
   title: z.string().min(3, "Titulo obrigatorio"),
+  type: z.string().min(1, "Selecione o tipo"),
   summary: z.string().min(5, "Resumo obrigatorio"),
   problem: z.string().min(5, "Problema obrigatorio"),
   solution: z.string().min(5, "Solucao obrigatoria"),
@@ -66,7 +68,7 @@ export function ProjectFormDialog({ open, onOpenChange, editProject, isAdmin }: 
     defaultValues: {
       title: editProject?.title || "",
       status: editProject?.status || "planejado",
-      type: editProject?.type || "automacao",
+      type: editProject?.type || "",
       team: editProject?.team || "",
       owner: editProject?.owner || "",
       summary: editProject?.summary || "",
@@ -89,7 +91,7 @@ export function ProjectFormDialog({ open, onOpenChange, editProject, isAdmin }: 
       form.reset({
         title: editProject?.title || "",
         status: editProject?.status || "planejado",
-        type: editProject?.type || "automacao",
+        type: editProject?.type || "",
         team: editProject?.team || "",
         owner: editProject?.owner || "",
         summary: editProject?.summary || "",
@@ -182,12 +184,13 @@ export function ProjectFormDialog({ open, onOpenChange, editProject, isAdmin }: 
               <FormField control={form.control} name="type" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl><SelectTrigger data-testid="select-project-type"><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {PROJECT_TYPES.map((t) => <SelectItem key={t} value={t}>{getTypeLabel(t)}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <TypeSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      data-testid="select-project-type"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />

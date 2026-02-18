@@ -11,8 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, X, Brain, FolderKanban, HelpCircle, Sparkles } from "lucide-react";
-import { type Project, PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel } from "@shared/schema";
+import { type Project, PROJECT_STATUSES, getStatusLabel } from "@shared/schema";
 import { TeamSelect } from "@/components/team-select";
+import { TypeSelect } from "@/components/type-select";
 import { ProjectCard } from "@/components/project-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
@@ -111,16 +112,14 @@ export default function Home() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="w-[140px]" data-testid="select-type">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              {PROJECT_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>{getTypeLabel(type)}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <TypeSelect
+            value={selectedType}
+            onValueChange={setSelectedType}
+            placeholder="Tipo"
+            allowClear
+            className="w-[140px]"
+            data-testid="select-type"
+          />
 
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} data-testid="button-clear-filters">

@@ -10,8 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { type Project, PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel } from "@shared/schema";
+import { type Project, PROJECT_STATUSES, getStatusLabel } from "@shared/schema";
 import { TeamSelect } from "@/components/team-select";
+import { TypeSelect } from "@/components/type-select";
 import { ProjectCard } from "@/components/project-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -96,16 +97,14 @@ export default function Projects() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedType} onValueChange={(v) => { setSelectedType(v); setPage(1); }}>
-            <SelectTrigger className="w-[140px]" data-testid="select-type-projects">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              {PROJECT_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>{getTypeLabel(type)}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <TypeSelect
+            value={selectedType}
+            onValueChange={(v) => { setSelectedType(v); setPage(1); }}
+            placeholder="Tipo"
+            allowClear
+            className="w-[140px]"
+            data-testid="select-type-projects"
+          />
 
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} data-testid="button-clear-filters-projects">
