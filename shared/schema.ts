@@ -92,7 +92,7 @@ export type Team = typeof teams.$inferSelect;
 export const PROJECT_STATUSES = ["ideia", "em_desenvolvimento", "piloto", "beta_privado", "producao"] as const;
 export const PROJECT_TYPES = ["automacao", "modelo_ml", "pipeline_dados", "chatbot", "dashboard", "integracao"] as const;
 export const URGENCY_LEVELS = ["baixa", "media", "alta", "critica"] as const;
-export const DEFAULT_TEAMS = ["Data Science", "Engenharia", "Produto", "Operacoes", "CS", "Growth", "Financeiro"] as const;
+export const DEFAULT_TEAMS = ["Tech", "Supply", "Marketing"] as const;
 export const HELP_STATUSES = ["aberto", "em_andamento", "concluido"] as const;
 export const TRAINING_CATEGORIES = ["ferramenta", "conceito", "framework", "plataforma", "geral"] as const;
 
