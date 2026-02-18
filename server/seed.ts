@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { projects, trainings } from "@shared/schema";
+import { projects, trainings, teams, DEFAULT_TEAMS } from "@shared/schema";
 
 const seedProjects = [
   {
@@ -161,6 +161,15 @@ const seedTrainings = [
 ];
 
 export async function seedDatabase() {
+  const existingTeams = await db.select({ id: teams.id }).from(teams).limit(1);
+  if (existingTeams.length === 0) {
+    console.log("Seeding database with default teams...");
+    for (const name of DEFAULT_TEAMS) {
+      await db.insert(teams).values({ name });
+    }
+    console.log(`Seeded ${DEFAULT_TEAMS.length} teams.`);
+  }
+
   const existingProjects = await db.select({ id: projects.id }).from(projects).limit(1);
   if (existingProjects.length === 0) {
     console.log("Seeding database with sample projects...");

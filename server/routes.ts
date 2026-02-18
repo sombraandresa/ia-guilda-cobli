@@ -41,6 +41,30 @@ export async function registerRoutes(
     res.json({ valid: true });
   });
 
+  app.get("/api/teams", async (_req, res) => {
+    try {
+      const result = await storage.getTeams();
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+      res.status(500).json({ message: "Failed to fetch teams" });
+    }
+  });
+
+  app.post("/api/teams", async (req, res) => {
+    try {
+      const { name } = req.body;
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ message: "Nome do time obrigatorio" });
+      }
+      const team = await storage.createTeam(name.trim());
+      res.status(201).json(team);
+    } catch (error) {
+      console.error("Error creating team:", error);
+      res.status(500).json({ message: "Failed to create team" });
+    }
+  });
+
   app.get("/api/projects", async (req, res) => {
     try {
       const filters = {

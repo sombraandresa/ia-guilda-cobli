@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, X, Brain, FolderKanban, HelpCircle, Sparkles } from "lucide-react";
-import { type Project, PROJECT_STATUSES, PROJECT_TYPES, TEAMS, getStatusLabel, getTypeLabel } from "@shared/schema";
+import { type Project, type Team, PROJECT_STATUSES, PROJECT_TYPES, getStatusLabel, getTypeLabel } from "@shared/schema";
 import { ProjectCard } from "@/components/project-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
@@ -39,6 +39,10 @@ export default function Home() {
 
   const { data: allTags } = useQuery<string[]>({
     queryKey: ["/api/tags"],
+  });
+
+  const { data: teamsList } = useQuery<Team[]>({
+    queryKey: ["/api/teams"],
   });
 
   const hasFilters = selectedTag || selectedTeam || selectedStatus || selectedType;
@@ -95,8 +99,8 @@ export default function Home() {
               <SelectValue placeholder="Time" />
             </SelectTrigger>
             <SelectContent>
-              {TEAMS.map((team) => (
-                <SelectItem key={team} value={team}>{team}</SelectItem>
+              {(teamsList || []).map((team) => (
+                <SelectItem key={team.id} value={team.name}>{team.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
