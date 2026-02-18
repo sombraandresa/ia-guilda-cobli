@@ -310,6 +310,7 @@ export default function HelpRequest() {
                           placeholder="Links, prints, dados relevantes..."
                           className="resize-none min-h-[60px]"
                           {...field}
+                          value={field.value || ""}
                           data-testid="input-help-context"
                         />
                       </FormControl>
