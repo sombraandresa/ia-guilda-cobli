@@ -89,7 +89,7 @@ export const insertTeamSchema = createInsertSchema(teams).omit({ id: true });
 export type InsertTeam = z.infer<typeof insertTeamSchema>;
 export type Team = typeof teams.$inferSelect;
 
-export const PROJECT_STATUSES = ["em_andamento", "concluido", "pausado", "planejado"] as const;
+export const PROJECT_STATUSES = ["ideia", "em_desenvolvimento", "piloto", "beta_privado", "producao"] as const;
 export const PROJECT_TYPES = ["automacao", "modelo_ml", "pipeline_dados", "chatbot", "dashboard", "integracao"] as const;
 export const URGENCY_LEVELS = ["baixa", "media", "alta", "critica"] as const;
 export const DEFAULT_TEAMS = ["Data Science", "Engenharia", "Produto", "Operacoes", "CS", "Growth", "Financeiro"] as const;
@@ -98,10 +98,11 @@ export const TRAINING_CATEGORIES = ["ferramenta", "conceito", "framework", "plat
 
 export function getStatusLabel(status: string): string {
   const map: Record<string, string> = {
-    em_andamento: "Em Andamento",
-    concluido: "Concluido",
-    pausado: "Pausado",
-    planejado: "Planejado",
+    ideia: "Ideia",
+    em_desenvolvimento: "Em desenvolvimento",
+    piloto: "Piloto/No time: sem usuários",
+    beta_privado: "Beta privado: teste com poucos usuários",
+    producao: "Produção: 100% do público",
   };
   return map[status] || status;
 }
