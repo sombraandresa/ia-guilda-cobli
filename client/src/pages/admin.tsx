@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Shield, LogOut, Plus, Pencil, Trash2, FolderKanban, HelpCircle, GraduationCap, Save } from "lucide-react";
+import { Shield, LogOut, Plus, Pencil, Trash2, FolderKanban, HelpCircle, GraduationCap, Save, Eye } from "lucide-react";
 import { type Project, type HelpRequest, type Training, getStatusLabel, getTypeLabel, getHelpStatusLabel, getUrgencyLabel, HELP_STATUSES, getCategoryLabel } from "@shared/schema";
 import { STATUS_COLORS, URGENCY_COLORS } from "@/lib/constants";
 import { useAdmin, adminFetch } from "@/lib/admin";
@@ -56,6 +56,7 @@ export default function Admin() {
   const [projectFormOpen, setProjectFormOpen] = useState(false);
   const [trainingFormOpen, setTrainingFormOpen] = useState(false);
   const [editTraining, setEditTraining] = useState<Training | null>(null);
+  const [viewHelpRequest, setViewHelpRequest] = useState<HelpRequest | null>(null);
   const [trainingTitle, setTrainingTitle] = useState("");
   const [trainingDesc, setTrainingDesc] = useState("");
   const [trainingLink, setTrainingLink] = useState("");
@@ -253,6 +254,9 @@ export default function Admin() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
+                        <Button size="icon" variant="ghost" onClick={() => setViewHelpRequest(req)} data-testid={`button-view-help-${req.id}`}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
                         <Select
                           value={req.status}
                           onValueChange={(status) => updateHelpStatus.mutate({ id: req.id, status })}
@@ -335,6 +339,88 @@ export default function Admin() {
           editProject={editProject}
           isAdmin={true}
         />
+
+        <Dialog open={!!viewHelpRequest} onOpenChange={(open) => !open && setViewHelpRequest(null)}>
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{viewHelpRequest?.title}</DialogTitle>
+            </DialogHeader>
+            {viewHelpRequest && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="secondary" className={URGENCY_COLORS[viewHelpRequest.urgency] || ""}>
+                    {getUrgencyLabel(viewHelpRequest.urgency)}
+                  </Badge>
+                  <Badge variant="secondary" className={HELP_STATUS_COLORS[viewHelpRequest.status] || ""}>
+                    {getHelpStatusLabel(viewHelpRequest.status)}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {format(new Date(viewHelpRequest.createdAt), "dd MMM yyyy", { locale: ptBR })}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Solicitante</p>
+                  <p className="text-sm">{viewHelpRequest.requester} — {viewHelpRequest.team}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Descricao</p>
+                  <p className="text-sm whitespace-pre-wrap">{viewHelpRequest.description}</p>
+                </div>
+
+                {viewHelpRequest.context && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Contexto adicional</p>
+                    <p className="text-sm whitespace-pre-wrap">{viewHelpRequest.context}</p>
+                  </div>
+                )}
+
+                {viewHelpRequest.suggestedProjects && viewHelpRequest.suggestedProjects.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Projetos sugeridos</p>
+                    <div className="flex flex-wrap gap-1">
+                      {viewHelpRequest.suggestedProjects.map((p, i) => (
+                        <Badge key={i} variant="outline" className="text-xs">{p}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {viewHelpRequest.suggestedPeople && viewHelpRequest.suggestedPeople.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Pessoas sugeridas</p>
+                    <div className="flex flex-wrap gap-1">
+                      {viewHelpRequest.suggestedPeople.map((p, i) => (
+                        <Badge key={i} variant="outline" className="text-xs">{p}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pt-2">
+                  <span className="text-xs font-medium text-muted-foreground">Status:</span>
+                  <Select
+                    value={viewHelpRequest.status}
+                    onValueChange={(status) => {
+                      updateHelpStatus.mutate({ id: viewHelpRequest.id, status });
+                      setViewHelpRequest({ ...viewHelpRequest, status });
+                    }}
+                  >
+                    <SelectTrigger className="w-[160px]" data-testid="select-help-detail-status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {HELP_STATUSES.map((s) => (
+                        <SelectItem key={s} value={s}>{getHelpStatusLabel(s)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={trainingFormOpen} onOpenChange={setTrainingFormOpen}>
           <DialogContent>
