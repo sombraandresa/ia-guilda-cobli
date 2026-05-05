@@ -1,0 +1,19 @@
+# Database dumps / backups
+*.sql
+*.dump
+backup*.sql
+!.cache/**/*.sql
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Node / Bun
+node_modules/
+.cache/
+dist/
+build/
+
+# OS
+.DS_Store
