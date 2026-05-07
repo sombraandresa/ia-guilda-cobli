@@ -30,7 +30,9 @@ export const projects = pgTable("projects", {
   links: jsonb("links").$type<ProjectLinks>().default({}),
 });
 
-export const insertProjectSchema = createInsertSchema(projects).omit({
+export const insertProjectSchema = createInsertSchema(projects, {
+  links: linksSchema.optional(),
+}).omit({
   id: true,
   lastUpdated: true,
 });
