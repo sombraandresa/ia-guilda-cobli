@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,10 +16,11 @@ export default function AdminLogin() {
   const router = useRouter();
   const { toast } = useToast();
 
-  if (isAdmin) {
-    router.push("/admin");
-    return null;
-  }
+  useEffect(() => {
+    if (isAdmin) router.push("/admin");
+  }, [isAdmin, router]);
+
+  if (isAdmin) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

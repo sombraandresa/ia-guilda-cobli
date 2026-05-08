@@ -2,13 +2,14 @@ import { z } from "zod";
 import { storage } from "@/lib/storage";
 import { insertTrainingSchema } from "@shared/schema";
 import { requireAdmin } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   try {
     const trainings = await storage.getTrainings();
     return Response.json(trainings);
   } catch (error) {
-    console.error("Error fetching trainings:", error);
+    logger.error("Failed to fetch trainings", { error });
     return Response.json({ message: "Failed to fetch trainings" }, { status: 500 });
   }
 }
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return Response.json({ message: "Dados invalidos", errors: error.errors }, { status: 400 });
     }
-    console.error("Error creating training:", error);
+    logger.error("Failed to create training", { error });
     return Response.json({ message: "Failed to create training" }, { status: 500 });
   }
 }

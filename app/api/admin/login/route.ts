@@ -1,9 +1,14 @@
 import { cookies } from "next/headers";
 import { buildSessionCookie, createSessionToken } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    logger.error("ADMIN_PASSWORD env var is not set", { route: "/api/admin/login" });
+    return Response.json({ message: "Server misconfigured" }, { status: 500 });
+  }
   const { password } = await req.json();
-  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
   if (password !== adminPassword) {
     return Response.json({ message: "Senha incorreta" }, { status: 401 });
   }

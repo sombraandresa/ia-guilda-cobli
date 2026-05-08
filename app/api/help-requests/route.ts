@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { storage } from "@/lib/storage";
 import { insertHelpRequestSchema } from "@shared/schema";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   try {
     const requests = await storage.getHelpRequests();
     return Response.json(requests);
   } catch (error) {
-    console.error("Error fetching help requests:", error);
+    logger.error("Failed to fetch help requests", { error });
     return Response.json({ message: "Failed to fetch help requests" }, { status: 500 });
   }
 }
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return Response.json({ message: "Dados invalidos", errors: error.errors }, { status: 400 });
     }
-    console.error("Error creating help request:", error);
+    logger.error("Failed to create help request", { error });
     return Response.json({ message: "Failed to create help request" }, { status: 500 });
   }
 }
