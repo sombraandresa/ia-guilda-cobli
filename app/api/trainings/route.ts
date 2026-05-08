@@ -14,7 +14,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const unauth = requireAdmin(req);
+  const unauth = await requireAdmin(req);
   if (unauth) return unauth;
   try {
     const body = await req.json();

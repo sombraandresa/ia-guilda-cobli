@@ -1,9 +1,7 @@
-import { destroyAdminToken, getBearerToken, requireAdmin } from "@/lib/auth";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 
-export async function POST(req: Request) {
-  const unauth = requireAdmin(req);
-  if (unauth) return unauth;
-  const token = getBearerToken(req);
-  if (token) destroyAdminToken(token);
-  return Response.json({ message: "Logout realizado" });
+export async function POST() {
+  cookies().delete(SESSION_COOKIE_NAME);
+  return Response.json({ ok: true });
 }

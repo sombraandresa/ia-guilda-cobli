@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 type Ctx = { params: { id: string } };
 
 export async function PATCH(req: Request, { params }: Ctx) {
-  const unauth = requireAdmin(req);
+  const unauth = await requireAdmin(req);
   if (unauth) return unauth;
   try {
     const body = await req.json();
@@ -20,7 +20,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 }
 
 export async function DELETE(req: Request, { params }: Ctx) {
-  const unauth = requireAdmin(req);
+  const unauth = await requireAdmin(req);
   if (unauth) return unauth;
   try {
     const deleted = await storage.deleteTraining(params.id);

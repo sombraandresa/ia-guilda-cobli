@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext, useCallback } from "react";
 
 interface AdminContextType {
-  token: string | null;
   isAdmin: boolean;
-  login: (token: string) => void;
-  logout: () => void;
+  loading: boolean;
+  login: (password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType>({
-  token: null,
   isAdmin: false,
-  login: () => {},
-  logout: () => {},
+  loading: true,
+  login: async () => false,
+  logout: async () => {},
+  refresh: async () => {},
 });
 
 export function useAdmin() {
@@ -22,40 +24,61 @@ export function useAdmin() {
 
 export { AdminContext };
 
-export function useAdminState() {
-  const [token, setToken] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("admin-token");
-  });
+export function useAdminState(): AdminContextType {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const isAdmin = !!token;
+  const refresh = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/verify", { credentials: "same-origin" });
+      setIsAdmin(res.ok);
+    } catch {
+      setIsAdmin(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const login = (newToken: string) => {
-    localStorage.setItem("admin-token", newToken);
-    setToken(newToken);
-  };
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
-  const logout = () => {
-    localStorage.removeItem("admin-token");
-    setToken(null);
-  };
+  const login = useCallback(
+    async (password: string): Promise<boolean> => {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) return false;
+      await refresh();
+      return true;
+    },
+    [refresh]
+  );
 
-  return { token, isAdmin, login, logout };
+  const logout = useCallback(async () => {
+    await fetch("/api/admin/logout", { method: "POST", credentials: "same-origin" });
+    setIsAdmin(false);
+  }, []);
+
+  return { isAdmin, loading, login, logout, refresh };
 }
 
 export async function adminFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const token = localStorage.getItem("admin-token");
   const response = await fetch(url, {
     ...options,
+    credentials: "same-origin",
     headers: {
       ...options.headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.body ? { "Content-Type": "application/json" } : {}),
     },
   });
-  if (response.status === 401 && token) {
-    localStorage.removeItem("admin-token");
-    window.location.href = "/admin/login";
+  if (response.status === 401) {
+    if (typeof window !== "undefined") {
+      window.location.href = "/admin/login";
+    }
   }
   return response;
 }

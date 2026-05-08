@@ -1,7 +1,9 @@
-import { requireAdmin } from "@/lib/auth";
+import { getSessionFromRequest } from "@/lib/auth";
 
 export async function GET(req: Request) {
-  const unauth = requireAdmin(req);
-  if (unauth) return unauth;
+  const session = await getSessionFromRequest(req);
+  if (!session) {
+    return Response.json({ valid: false }, { status: 401 });
+  }
   return Response.json({ valid: true });
 }

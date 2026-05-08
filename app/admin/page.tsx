@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -51,7 +51,7 @@ const HELP_STATUS_COLORS: Record<string, string> = {
 };
 
 export default function Admin() {
-  const { isAdmin, logout } = useAdmin();
+  const { isAdmin, loading, logout } = useAdmin();
   const router = useRouter();
   const { toast } = useToast();
   const [editProject, setEditProject] = useState<Project | null>(null);
@@ -146,12 +146,16 @@ export default function Admin() {
     setTrainingFormOpen(true);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/admin/login");
   };
 
-  if (!isAdmin) {
+  useEffect(() => {
+    if (!loading && !isAdmin) router.push("/admin/login");
+  }, [loading, isAdmin, router]);
+
+  if (loading || !isAdmin) {
     return null;
   }
 

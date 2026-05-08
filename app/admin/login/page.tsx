@@ -25,14 +25,8 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        login(data.token);
+      const ok = await login(password);
+      if (ok) {
         router.push("/admin");
       } else {
         toast({

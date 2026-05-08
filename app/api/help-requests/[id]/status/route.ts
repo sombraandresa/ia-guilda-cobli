@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 type Ctx = { params: { id: string } };
 
 export async function PATCH(req: Request, { params }: Ctx) {
-  const unauth = requireAdmin(req);
+  const unauth = await requireAdmin(req);
   if (unauth) return unauth;
   try {
     const { status } = await req.json();
